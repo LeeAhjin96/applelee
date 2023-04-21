@@ -1,0 +1,401 @@
+[예제01]
+import cv2
+
+fname = 'images/lena.jpg'
+
+color = cv2.imread(fname, cv2.IMREAD_COLOR)
+grayscale = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)
+unchanged = cv2.imread(fname, cv2.IMREAD_UNCHANGED)
+
+cv2.imshow('Color',color)
+cv2.imshow('Grayscale', grayscale)
+cv2.imshow('unchanged',unchanged)
+           
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+[예제02]
+import cv2
+from matplotlib import pyplot as plt
+%matplotlib inline
+
+img = cv2.imread('images/lena.jpg', cv2.IMREAD_COLOR)
+
+plt.imshow(img)
+plt.show()
+
+[예제03]
+import cv2
+from matplotlib import pyplot as plt
+
+img = cv2.imread('images/lena.jpg', cv2.IMREAD_COLOR)
+
+b,g,r = cv2.split(img)
+img2 = cv2.merge([r,g,b])
+
+plt.imshow(img2)
+plt.show()
+
+[예제04]
+import cv2
+
+cap = cv2.VideoCapture("images/Puppies-HD.mp4")
+
+if cap.isOpened():
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000/cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            cv2.imshow("Movie", img)
+            if cv2.waitKey(delay) & 0xFF == 27 :
+                print("ESC Key pressed")
+                break
+        else:
+            print("No Frame")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+[예제05]
+import cv2
+
+cap = cv2.VideoCapture(0)
+
+if cap.isOpened():
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000/cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            cv2.imshow("Movie", cv2.cvtColor(img,cv2.COLOR_BGR2GRAY))
+            if cv2.waitKey(delay) & 0xFF == 27 :
+                print("ESC Key pressed")
+                break
+        else:
+            print("No Frame")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+[예제05-1]
+import cv2
+
+cap = cv2.VideoCapture(0)
+print(cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+print(cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+if cap.isOpened():
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000/cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            cv2.imshow("Movie", img)
+            if cv2.waitKey(delay) & 0xFF == 27:
+                print("ESC Key pressed")
+                break
+        else:
+            print("No FRAME")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+[예제05-2]
+import cv2
+import numpy as np
+
+src = cv2.imread("images/airplane2.jpg")
+src_mask = np.zeros(src.shape, src.dtype)
+poly = np.array([ [0,40], [150,60], [203,56], [200,100], [88,103], [1,75] ], np.int32)
+// 좌표값 xy 좌표 변경 앞쪽 세값 y를 0으로 둘 시, 처음부터 깔끔하게 나옴
+
+cv2.fillPoly(src_mask, [poly], (255,255,255))
+center = (200,150)
+
+cap = cv2.VideoCapture(0)
+
+if cap.isOpened():
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000 / cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            output = cv2.seamlessClone(src, img, src_mask, center, cv2.NORMAL_CLONE)
+            cv2.imshow("Movie", output)
+            if cv2.waitKey(delay) & 0xFF == 27:
+                print("ESC Key pressed")
+                break
+        else:
+            print("No Frame")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+[예제05-3]
+import cv2
+
+cap = cv2.VideoCapture(0)
+
+if cap.isOpened():
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000/cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            edge = cv2.Canny(gray, 150, 200)
+            cv2.imshow("Movie", edge)
+            
+            if cv2.waitKey(delay) & 0xFF == 27:
+                print("ESC Key pressed")
+                break
+        else:
+            print("No Frame")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+-----------[예제22]
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    
+    img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.GaussianBlur(img_gray,(9,9),0)
+    edges = cv2.Laplacian(img_gray, -1, None, 5)
+    ret, sketch = cv2.threshold(edges, 70, 255, cv2.THRESH_BINARY_INV)
+    sketch = cv2.medianBlur(sketch,5)
+    img_sketch = cv2.cvtColor(sketch, cv2.COLOR_GRAY2BGR)
+    img_paint = cv2.blur(frame, (10,10))
+    img_paint = cv2.bitwise_and(img_paint, img_paint, mask=sketch)
+    merged = np.hstack((img_sketch, img_paint))
+    cv2.imshow('Sketch Camera', merged)
+    if cv2.waitKey(1) == 27:
+        break
+cap.release()
+cv2.dstroyAllWindows()
+
+---------[예제06]
+import cv2
+import numpy as np
+from datetime import datetime
+
+def mouseHandler(event,x,y,flags,param):
+    if event==cv2.EVENT_LBUTTONDOWN:
+        print(event,x,y)
+        print(datetime.today())
+        filename=str(datetime.today().microsecond)+".jpg"
+        cv2.imwrite(filename,img)
+        
+cv2.namedWindow('Movie')
+cv2.setMouseCallback("Movie", mouseHandler)
+
+cap = cv2.VideoCapture("images/Puppies-HD.mp4")
+
+img = None
+if cap.isOpened():
+    
+    print(cap.get(cv2.CAP_PROP_FPS))
+    delay = int(1000/cap.get(cv2.CAP_PROP_FPS))
+    while True:
+        ret, img = cap.read()
+        if ret:
+            cv2.imshow("Movie", img)
+            if cv2.waitKey(delay) & 0xFF == 27:
+                print("ESC Key pressed")
+                break
+        else:
+            print("No Frame")
+            print(ret, img)
+            break
+else:
+    print("File not opened")
+    
+cap.release()
+cv2.destroyAllWindows()
+
+--------[예제08]
+import cv2
+import numpy as np
+
+def draw_circle(event, x, y, flags, param):
+    if event == cv2.EVENT_FLAG_CTRLKEY:
+        if flags & cv2.EBENT_FLAG_CTRLKEY:
+            cv2.rectangle(img, (x,y), (x+20, y+20), (0,0,255),-1)
+        else:
+            cv2.rectangle(img, (x,y), (x+20, y+20), (0,255,0), 2)
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        cv2.circle(img, (x,y), 20, (255,0,0), 2)
+    elif event == cv2.EVENT_LBUTTONDBLCLK:
+        cv2.circle(img, (x,y), 20, (255,0,0), -1)
+
+        
+img = np.full((512,512,3),255, dtype=np.uint8)
+cv2.namedWindow('image')
+cv2.setMouseCallback('image',draw_circle)
+
+while(1):
+    cv2.imshow('image',img)
+    if cv2.waitKey(20) & 0xFF == 27:
+        break
+        
+
+----------[예제08-추가펭귄]
+import cv2
+import numpy as np
+
+def draw_circle(event, x, y, flags, param):
+    if event == cv2.EVENT_FLAG_CTRLKEY:
+        if flags & cv2.EBENT_FLAG_CTRLKEY:
+            cv2.rectangle(img, (x,y), (x+20, y+20), (0,0,255),-1)
+        else:
+            cv2.rectangle(img, (x,y), (x+20, y+20), (0,255,0), 2)
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        cv2.circle(img, (x,y), 20, (255,0,0), 2)
+    elif event == cv2.EVENT_LBUTTONDBLCLK:
+        #cv2.circle(img, (x,y), 20, (255,0,0), -1)
+        cv2.ellipse(img,(x,y), (x+50, y+30), -30,0,360,(255,0,0),2)
+        cv2.ellipse(img,(x,y),(50,30), -30,0,360,(255,0,0),2)
+        cv2.ellipse(img,(x,y),(50,30),0,0,360,(0,0,255), -1)
+        cv2.ellipse(img,(x,y),(50,30),30,0,180,(255,0,0),2)
+        cv2.ellipse(img,(x,y),(50,30),90,0,180,(0,0,255),-1)
+        
+img = np.full((512,512,3),255, dtype=np.uint8)
+cv2.namedWindow('image')
+cv2.setMouseCallback('image',draw_circle)
+
+while(1):
+    cv2.imshow('image',img)
+    if cv2.waitKey(20) & 0xFF == 27:
+        break
+
+------[예제09]
+import cv2
+import numpy as np
+image = np.full((100,100,3), 255, np.uint8)
+
+while(1):
+    cv2.imshow("Key test", image)
+    key = cv2.waitKey(0)
+    print(f'Code: {key}, Char: {chr(key)}')
+    if key & 0xFF == 27:
+        break
+        
+cv2.destroyAllWindows()
+
+-----------[예제10]
+import cv2
+import numpy as np
+
+img = np.full((250,250,3), 255, dtype=np.uint8)
+
+cv2.line(img, (50,10), (200,10), (255,0,0), 1)
+cv2.line(img, (50,60), (200,60), (0,255,0), 2)
+cv2.line(img, (50,110), (200,110), (0,0,255), 3)
+cv2.line(img, (50,160), (200,160), (0,0,0), 4)
+cv2.line(img, (50,210), (200,210), (255,0,255), 5)
+
+cv2.imshow('Lines', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+        
+
+--------------[예제12]
+import cv2
+import numpy as np
+
+img = np.full((250,250,3), 255, dtype=np.uint8)
+
+cv2.circle(img, (50,50), 50, (255,0,0))
+cv2.circle(img, (100,100), 50, (0,255,0), -1)
+cv2.circle(img, (100,100), 100, (0,0,255), 5)
+cv2.circle(img, (200,200), 50, (0,0,0), 5)
+
+cv2.imshow('Circle',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+-------------------[예제13]
+import cv2
+import numpy as np
+
+img = np.full((250,250,3), 255, dtype=np.uint8)
+
+cv2.rectangle(img, (50,10), (200,50), (255,0,0))
+cv2.rectangle(img, (50,60), (200,100), (255,0,0), 5)
+cv2.rectangle(img, (50,110), (200,150), (255,0,0), -1)
+cv2.rectangle(img, (50,160), (200,200), (255,0,0), -1)
+cv2.rectangle(img, (50,160), (200,200), (0,0,255), 5)
+
+cv2.imshow('Rectangle',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+------------------[예제14]
+import cv2
+import numpy as np
+
+img = np.full((250,250,3), 255, dtype=np.uint8)
+points = np.array([[[60,60], [100,10], [200,60], [150,100], [100,100]]], dtype=np.int32)
+
+cv2.polylines(img, points, True, (255,0,0), 5)
+cv2.polylines(img, points+[0,100], False, (0,0,255), 10)
+
+cv2.imshow('Polylines', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+------------[예제15]
+import cv2
+import numpy as np
+
+img = np.full((300,300,3), 255, dtype=np.uint8)
+
+cv2.putText(img, "HiHi", (10,50), cv2.FONT_ITALIC, 1, (255,0,0))
+cv2.putText(img, "Leeahjin!!", (10,150), cv2.FONT_HERSHEY_DUPLEX, 2, (0,0,0))
+
+cv2.imshow('Text', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+----------------[예제16]
+import cv2
+import numpy as np
+
+img1 = cv2.imread('images/flower1.jpg')
+img2 = cv2.imread('images/flower2.jpg')
+
+cv2.imshow('Flower 1', img1)
+cv2.imshow('Flower 2', img2)
+cv2.imshow('cv2.add', cv2.add(img1, img2))
+#cv2.imshow('np.add', np.add(img1, img2))
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
